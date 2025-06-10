@@ -41,8 +41,8 @@
             <!-- Input Fields -->
             <div class="space-y-6">
                 <div>
-                    <label for="viewCount" class="block text-sm font-semibold text-gray-300 mb-2">Total Video Views</label>
-                    <input type="number" id="viewCount" placeholder="e.g., 1000000" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition">
+                    <label for="likeCount" class="block text-sm font-semibold text-gray-300 mb-2">Total Video Likes</label>
+                    <input type="number" id="likeCount" placeholder="e.g., 100000" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition">
                 </div>
                 <div class="flex items-center">
                     <input id="overOneMinute" type="checkbox" class="h-5 w-5 bg-gray-700 border-gray-600 rounded text-purple-600 focus:ring-purple-500">
@@ -132,7 +132,7 @@
     </div>
 
     <script>
-        const viewCountInput = document.getElementById('viewCount');
+        const likeCountInput = document.getElementById('likeCount');
         const overOneMinuteCheckbox = document.getElementById('overOneMinute');
         const calculateBtn = document.getElementById('calculateBtn');
         const resultContainer = document.getElementById('resultContainer');
@@ -159,11 +159,11 @@
         });
 
         calculateBtn.addEventListener('click', () => {
-            const views = parseInt(viewCountInput.value);
+            const likes = parseInt(likeCountInput.value);
             const isEligible = overOneMinuteCheckbox.checked;
 
-            if (isNaN(views) || views <= 0) {
-                showError("Please enter a valid number of views.");
+            if (isNaN(likes) || likes <= 0) {
+                showError("Please enter a valid number of likes.");
                 return;
             }
             if (!isEligible) {
@@ -173,19 +173,23 @@
             
             hideError();
 
+            const LIKE_TO_VIEW_RATIO = 0.04; // Assumption: Likes are ~4% of views
             const QUALIFIED_VIEW_PERCENTAGE = 0.50;
             const RPM_LOW = 0.20;
             const RPM_HIGH = 0.90;
-            const qualifiedViews = views * QUALIFIED_VIEW_PERCENTAGE;
+
+            const estimatedViews = likes / LIKE_TO_VIEW_RATIO;
+            const qualifiedViews = estimatedViews * QUALIFIED_VIEW_PERCENTAGE;
             const lowEstimate = (qualifiedViews / 1000) * RPM_LOW;
             const highEstimate = (qualifiedViews / 1000) * RPM_HIGH;
             
             earningsRangeEl.textContent = `$${formatNumber(lowEstimate)} - $${formatNumber(highEstimate)}`;
 
             explanationContent.innerHTML = `
-                <p><strong class="text-gray-300">1. Qualified Views:</strong> ${formatViews(views)} total views x 50% = ~${formatViews(qualifiedViews)} qualified views.</p>
-                <p><strong class="text-gray-300">2. RPM (Low):</strong> (${formatViews(qualifiedViews)} / 1000) * $${RPM_LOW.toFixed(2)} = <strong class="text-green-400">$${formatNumber(lowEstimate)}</strong></p>
-                <p><strong class="text-gray-300">3. RPM (High):</strong> (${formatViews(qualifiedViews)} / 1000) * $${RPM_HIGH.toFixed(2)} = <strong class="text-green-400">$${formatNumber(highEstimate)}</strong></p>
+                <p><strong class="text-gray-300">1. Est. Views:</strong> ${formatViews(likes)} likes / 4% = ~${formatViews(estimatedViews)} total views.</p>
+                <p><strong class="text-gray-300">2. Qualified Views:</strong> ${formatViews(estimatedViews)} est. views x 50% = ~${formatViews(qualifiedViews)} qualified views.</p>
+                <p><strong class="text-gray-300">3. RPM (Low):</strong> (${formatViews(qualifiedViews)} / 1000) * $${RPM_LOW.toFixed(2)} = <strong class="text-green-400">$${formatNumber(lowEstimate)}</strong></p>
+                <p><strong class="text-gray-300">4. RPM (High):</strong> (${formatViews(qualifiedViews)} / 1000) * $${RPM_HIGH.toFixed(2)} = <strong class="text-green-400">$${formatNumber(highEstimate)}</strong></p>
                 <p class="text-gray-500 italic pt-2">This is an estimate. For official details, visit TikTok's website.</p>
             `;
             
