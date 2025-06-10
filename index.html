@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Headstrong AI | Interactive Web Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .portfolio-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .portfolio-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white antialiased">
+
+    <!-- Header Section -->
+    <header class="py-12 md:py-20 bg-gray-900">
+        <div class="container mx-auto px-6 text-center">
+            <h1 class="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
+                Headstrong AI
+            </h1>
+            <p class="mt-4 text-lg md:text-xl text-gray-300">
+                Interactive Web & Visual Experiences
+            </p>
+        </div>
+    </header>
+
+    <!-- Portfolio Grid -->
+    <main class="container mx-auto px-6 pb-20">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+            <!-- Project 1: Bouncing Music Ball -->
+            <a href="visualizer.html" class="portfolio-card block bg-gray-800 rounded-lg overflow-hidden shadow-lg">
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold text-white mb-2">Audio Visualizer</h2>
+                    <p class="text-gray-400 mb-4">An interactive, beat-driven music visualizer built with JavaScript, GSAP, and Tone.js.</p>
+                    <span class="inline-block bg-pink-600 text-white text-sm font-semibold px-3 py-1 rounded-full">
+                        View Project &rarr;
+                    </span>
+                </div>
+            </a>
+
+            <!-- Project 2: LyricGen -->
+            <a href="lyricgen.html" class="portfolio-card block bg-gray-800 rounded-lg overflow-hidden shadow-lg">
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold text-white mb-2">LyricGen AI</h2>
+                    <p class="text-gray-400 mb-4">An AI-powered lyric and music prompt generator for artists and producers. Now in public beta.</p>
+                    <span class="inline-block bg-blue-600 text-white text-sm font-semibold px-3 py-1 rounded-full">
+                        View Beta &rarr;
+                    </span>
+                </div>
+            </a>
+            
+            <!-- Add More Project Cards Here -->
+            <!-- 
+            <a href="your-next-project.html" class="portfolio-card block bg-gray-800 rounded-lg overflow-hidden shadow-lg">
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold text-white mb-2">Your Next Big Idea</h2>
+                    <p class="text-gray-400 mb-4">A description of your awesome new project goes here.</p>
+                    <span class="inline-block bg-pink-600 text-white text-sm font-semibold px-3 py-1 rounded-full">
+                        View Project &rarr;
+                    </span>
+                </div>
+            </a>
+            -->
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-10 bg-gray-900 border-t border-gray-800">
+        <div class="container mx-auto px-6 text-center text-gray-500">
+            <p>A portfolio of interactive experiments by Headstrong AI.</p>
+            <p class="mt-2">
+                Like what you see? <a href="https://www.fiverr.com/" target="_blank" class="text-green-400 hover:underline">Hire me on Fiverr</a>.
+            </p>
+        </div>
+    </footer>
+
+</body>
+</html>
