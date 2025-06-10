@@ -75,13 +75,11 @@
                 color: colors[0]
             };
             noteIndex = 0;
+            isRunning = false;
 
-            if (isRunning) {
-                animate();
-            } else {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                drawBall();
-            }
+            // Draw initial state without starting animation loop
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBall();
         }
         
         // --- Drawing: Ball Mode ---
@@ -99,35 +97,23 @@
         const visualizerManager = {
             scenes: [],
             currentSceneIndex: 0,
+            frameCount: 0,
+            switchInterval: 180,
+
             addScene(sceneFunction) { this.scenes.push(sceneFunction); },
-            reset() { this.currentSceneIndex = 0; particles = []; shockwaves = []; kineticTexts = []; grid = []; gridPatternManager.reset(); cube = {}; dna.rotation = 0; tunnelRings = []; beatDetector.reset();},
+            reset() { this.currentSceneIndex = 0; this.frameCount = 0; particles = []; shockwaves = []; kineticTexts = []; grid = []; gridPatternManager.reset(); cube = {}; dna.rotation = 0; tunnelRings = []; },
             switchToNext() {
                 this.currentSceneIndex = (this.currentSceneIndex + 1) % this.scenes.length;
                 glitchScreen(8);
             },
             draw() {
+                this.frameCount++;
+                if (this.frameCount > 0 && this.frameCount % this.switchInterval === 0) {
+                    this.switchToNext();
+                }
                 if (this.scenes[this.currentSceneIndex]) {
                     this.scenes[this.currentSceneIndex]();
                 }
-            }
-        };
-
-        // **NEW**: Beat Detection Engine
-        const beatDetector = {
-            threshold: 0.8, // How strong the bass hit needs to be (0-1)
-            cooldown: 450, // Minimum time between beats in ms
-            lastBeatTime: 0,
-            reset() { this.lastBeatTime = 0; },
-            update(fftInstance) {
-                if (!fftInstance) return false;
-                // Analyze the first (bass) frequency bin
-                const bass = Math.max(0, (fftInstance.getValue()[0] + 140) / 140);
-                const now = Date.now();
-                if (bass > this.threshold && (now - this.lastBeatTime > this.cooldown)) {
-                    this.lastBeatTime = now;
-                    return true; // Beat detected!
-                }
-                return false;
             }
         };
 
@@ -146,7 +132,6 @@
             });
         }
         
-        // --- Grid Pattern Engine ---
         const gridPatternManager = {
             patterns: [], currentPatternIndex: 0, lastTriggerTime: 0,
             addPattern(patternFunction) { this.patterns.push(patternFunction); },
@@ -154,7 +139,7 @@
             nextPattern() { this.currentPatternIndex = (this.currentPatternIndex + 1) % this.patterns.length; },
             runCurrentPattern() { 
                  const now = Date.now();
-                 if (now - this.lastTriggerTime < 500) return; // Prevent re-triggering too quickly
+                 if (now - this.lastTriggerTime < 500) return;
                  if (this.patterns[this.currentPatternIndex]) {
                     this.patterns[this.currentPatternIndex]();
                     this.lastTriggerTime = now;
@@ -197,7 +182,6 @@
                 onComplete: () => gsap.to(grid, { scale: 1, duration: 1, ease: "power2.inOut" }) 
             });
         }
-
 
         // --- Visualizer Drawing Modes / Scenes ---
         function drawReactiveGrid() {
@@ -399,8 +383,7 @@
             let sum = 0;
             for(let i = 0; i < fftValues.length; i++) sum += (fftValues[i] + 140) / 140;
             globalIntensity = Math.max(0, sum / fftValues.length);
-
-            // **CHANGE**: Trigger scene switch on beat
+            
             if (beatDetector.update(fft)) {
                 visualizerManager.switchToNext();
             }
@@ -447,15 +430,55 @@
             }
             animationFrameId = requestAnimationFrame(animate);
         }
+        
+        const beatDetector = {
+            threshold: 0.7,
+            cooldown: 400,
+            lastBeatTime: 0,
+            reset() { this.lastBeatTime = 0; },
+            update(fftInstance) {
+                if (!fftInstance) return false;
+                const bass = Math.max(0, (fftInstance.getValue()[0] + 140) / 140);
+                const now = Date.now();
+                if (bass > this.threshold && (now - this.lastBeatTime > this.cooldown)) {
+                    this.lastBeatTime = now;
+                    return true;
+                }
+                return false;
+            }
+        };
 
         // --- Event Listeners ---
         function start() {
             Tone.start().then(() => {
                 synth = new Tone.FMSynth().toDestination();
-                player = new Tone.Player({ url: visualizerAudioURL, loop: true });
+                player = new Tone.Player({ 
+                    url: visualizerAudioURL, 
+                    loop: false
+                }).toDestination();
+
+                player.onstop = (source) => {
+                    if (visualizationActive) {
+                        gsap.to(canvas, {
+                            opacity: 0,
+                            duration: 2,
+                            ease: "power2.in",
+                            onComplete: () => {
+                                resetSimulation();
+                                gsap.to(canvas, {
+                                    opacity: 1,
+                                    duration: 1.5,
+                                    ease: "power2.out",
+                                    onComplete: attachStartListeners
+                                });
+                            }
+                        });
+                    }
+                };
+
                 fft = new Tone.FFT(32);
                 waveform = new Tone.Waveform(1024);
-                player.fan(fft, waveform, Tone.Destination);
+                player.fan(fft, waveform);
                 
                 gridPatternManager.addPattern(patternHorizontalWipe);
                 gridPatternManager.addPattern(patternVerticalWipe);
@@ -477,6 +500,11 @@
             });
         }
         
+        function attachStartListeners() {
+            window.addEventListener('click', startOnce);
+            window.addEventListener('keydown', keydownOnce);
+        }
+
         const startOnce = () => {
             start();
             window.removeEventListener('click', startOnce);
@@ -489,8 +517,7 @@
             }
         };
 
-        window.addEventListener('click', startOnce);
-        window.addEventListener('keydown', keydownOnce);
+        attachStartListeners();
         
         window.addEventListener('resize', setup);
 
