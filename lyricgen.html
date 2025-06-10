@@ -3,292 +3,250 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LyricGen App</title>
+    <title>LyricGen</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts - Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!-- GSAP CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #1a1e26 0%, #11141a 100%); /* Subtle dark gradient background */
-            display: flex;
-            flex-direction: column; /* Allow vertical stacking of header and app-card */
-            justify-content: flex-start; /* Align content from the top */
-            align-items: center;
-            min-height: 100vh;
-            padding: 40px 20px; /* More vertical padding for the whole page */
-            box-sizing: border-box;
-            color: #e2e8f0;
-            overflow-y: auto; /* Allow body to scroll if content exceeds viewport */
+            background-color: #111111;
+            color: #E5E7EB; /* gray-200 */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        .hero-section {
-            text-align: center;
-            margin-bottom: 3.5rem; /* Space between hero and app card */
-            color: #e2e8f0;
-            /* Removed opacity: 0 and transform: translateY(20px) from CSS */
+        .main-container {
+            max-width: 640px; /* Equivalent to md:max-w-xl lg:max-w-2xl */
+            margin-left: auto;
+            margin-right: auto;
+            padding: 2.5rem 1rem; /* p-10 px-4 */
         }
-        .hero-section h1 {
-            font-size: 3.5rem; /* Very large hero text */
-            font-weight: 800;
-            letter-spacing: -0.05em; /* Tighter for a punchier headline */
+
+        .hero-title {
+            font-size: 3rem; /* text-5xl */
+            font-weight: 800; /* font-extrabold */
+            letter-spacing: -0.05em; /* tracking-tighter */
             line-height: 1.1;
-            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+            background: -webkit-linear-gradient(45deg, #FFF, #A8A29E); /* stone-400 */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        .hero-section p {
-            font-size: 1.15rem;
-            margin-top: 0.8rem;
-            color: #a0aec0;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-        }
-
-        .app-card {
-            background-color: #20242e; /* The floating card background */
-            border-radius: 1rem; /* Overall card border radius */
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5), 0 5px 15px rgba(0, 0, 0, 0.3); /* Deeper, softer shadow */
-            max-width: 950px; /* Wider card */
-            width: 100%;
-            padding: 3rem; /* Generous padding inside the card */
-            display: flex;
-            flex-direction: column;
-            gap: 2rem; /* Increased gap between sections within the card */
+        
+        /* Mode Toggle Switch */
+        .mode-toggle {
+            background-color: #292524; /* stone-800 */
+            border-radius: 9999px;
+            padding: 4px;
+            display: inline-flex;
             position: relative;
-            overflow: hidden; /* Crucial for mode transitions */
-            transform: translateZ(0); /* Force hardware acceleration */
-            border: 1px solid rgba(255, 255, 255, 0.05); /* Subtle border for definition */
-            /* Removed opacity: 0 and transform: translateY(20px) from CSS */
+        }
+        .mode-toggle-option {
+            padding: 6px 16px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #A8A29E; /* stone-400 */
+            cursor: pointer;
+            position: relative;
+            z-index: 10;
+            transition: color 0.3s ease;
+        }
+        .mode-toggle-option.active {
+            color: #F5F5F4; /* stone-100 */
+        }
+        .mode-toggle-slider {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            height: calc(100% - 8px);
+            background-color: #7C3AED; /* violet-600 */
+            border-radius: 9999px;
+            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
-        h2 {
-            font-weight: 800;
-            letter-spacing: -0.04em;
-            color: #e2e8f0;
-            text-shadow: 0 3px 6px rgba(0,0,0,0.4);
-            font-size: 2.2rem; /* Slightly smaller than hero, for internal card headings */
-            margin-bottom: 1.5rem;
+        .form-card {
+            background-color: #1C1917; /* stone-900 */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem; /* rounded-2xl */
+            overflow: hidden; /* Important for GSAP animations */
         }
-        label {
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            display: block;
-            color: #a0aec0;
-            font-size: 0.95rem;
-            letter-spacing: 0.01em;
+
+        .form-label {
+            display: flex;
+            align-items: center;
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 600; /* font-semibold */
+            color: #D6D3D1; /* stone-300 */
         }
-        input, textarea, select {
-            background-color: rgba(62, 72, 93, 0.6);
-            border: 1px solid rgba(102, 126, 234, 0.4);
-            color: #e2e8f0;
-            padding: 1rem 1.4rem;
-            border-radius: 0.75rem;
-            outline: none;
-            transition: border-color 0.4s ease-in-out, box-shadow 0.4s ease-in-out, background-color 0.4s ease-in-out;
-            resize: vertical;
-            box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.3);
+
+        .form-label .number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.25rem; /* w-5 */
+            height: 1.25rem; /* h-5 */
+            margin-right: 0.75rem; /* mr-3 */
+            font-size: 0.75rem; /* text-xs */
+            font-weight: 700; /* font-bold */
+            color: #111111;
+            background-color: #A8A29E; /* stone-400 */
+            border-radius: 9999px; /* rounded-full */
+        }
+
+        input[type="text"], select {
+            background-color: #292524; /* stone-800 */
+            border: 1px solid #44403C; /* stone-700 */
+            color: #E5E7EB; /* gray-200 */
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem; /* rounded-lg */
+            width: 100%;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
-            position: relative;
         }
+        
         select {
-            background-image: url('data:image/svg+xml;utf8,<svg fill="%23a0aec0" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%23a8a29e" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M4.516 7.548c.436-.446 1.043-.481 1.576 0L10 11.414l3.908-3.866c.533-.481 1.141-.446 1.574 0 .436.445.408 1.197 0 1.615-.406.418-4.695 4.502-4.695 4.502a1.095 1.095 0 0 1-1.576 0S4.924 9.581 4.516 9.163c-.409-.418-.436-1.17 0-1.615z"/></svg>');
             background-repeat: no-repeat;
             background-position: right 1rem center;
-            background-size: 1.2em;
+            background-size: 1em;
             padding-right: 2.5rem;
         }
-        input:focus, textarea:focus, select:focus {
-            border-color: #7f9cf5;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.4), inset 0 3px 6px rgba(0, 0, 0, 0.4);
-            background-color: rgba(52, 62, 80, 0.7);
+
+        input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: #8B5CF6; /* violet-500 */
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
         }
-        button {
-            background: linear-gradient(90deg, #667eea, #7f9cf5);
+
+        .action-button {
             color: white;
-            padding: 1.1rem 2rem;
-            border-radius: 0.85rem;
-            font-weight: 800;
-            letter-spacing: 0.05em;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            width: 100%;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4), 0 3px 6px rgba(0, 0, 0, 0.2);
-            position: relative;
-            overflow: hidden;
+            transition: background-color 0.2s ease, transform 0.2s ease;
             display: flex;
-            justify-content: center;
             align-items: center;
-            transform: translateZ(0);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            justify-content: center;
+            gap: 0.5rem;
+            background-color: #7C3AED; /* violet-600 */
         }
-        button:hover {
-            background: linear-gradient(90deg, #5a67d8, #667eea);
-            transform: translateY(-4px) scale(1.02);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5), 0 4px 8px rgba(0, 0, 0, 0.3);
+        .action-button:hover {
+            background-color: #8B5CF6; /* violet-500 */
         }
-        button:active {
-            transform: translateY(0) scale(0.98);
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        .action-button:disabled {
+            background-color: #585062;
+            cursor: not-allowed;
         }
+        
         .loading-spinner {
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top: 4px solid #fff;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid #fff;
             border-radius: 50%;
-            width: 28px;
-            height: 28px;
+            width: 16px;
+            height: 16px;
             animation: spin 1s linear infinite;
-            margin-left: 1rem;
-            opacity: 0;
-            transform: scale(0);
-            flex-shrink: 0;
         }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        .error-message {
-            color: #fbd38d;
-            background-color: rgba(237, 137, 54, 0.25);
-            border: 1px solid #ed8936;
-            padding: 0.9rem 1.2rem;
-            border-radius: 0.6rem;
-            margin-top: 1.2rem;
-            display: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            font-weight: 600;
+
+        .output-card {
+            background-color: #1C1917; /* stone-900 */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem; /* rounded-2xl */
+            margin-top: 2rem;
+            visibility: hidden; /* Hidden by default, controlled by GSAP */
         }
-        .output-section {
-            background-color: rgba(46, 56, 75, 0.8);
-            backdrop-filter: blur(15px);
-            padding: 2rem;
-            border-radius: 1rem; /* Slightly smaller for the output card */
-            box-shadow: inset 0 5px 10px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
-            display: flex;
-            flex-direction: column;
-            gap: 1.2rem;
-            border: 1px solid rgba(102, 126, 234, 0.15);
+        
+        #titleSection {
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 1.5rem;
+            margin-bottom: 1.5rem;
         }
-        .output-section textarea {
-            min-height: 280px;
-            max-height: 500px;
-            background-color: rgba(30, 38, 51, 0.7);
-            border: 1px solid rgba(102, 126, 234, 0.2);
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
-            padding: 1.2rem;
-            border-radius: 0.85rem;
+        
+        #suggestedTitle {
+            font-weight: 900;
+            font-size: 2.25rem; /* text-4xl */
+            line-height: 1.2;
+            color: #C4B5FD; /* violet-300 */
+            letter-spacing: -0.05em;
+        }
+
+        #generatedLyrics {
+            background-color: #111111;
+            border: 1px solid #44403C; /* stone-700 */
+            color: #E5E7EB;
+            min-height: 250px;
+            white-space: pre-wrap;
             line-height: 1.6;
         }
-        .output-section h3 {
-            font-size: 2rem;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            margin-bottom: 0.5rem;
+        .copy-button {
+             background-color: transparent;
+             color: #A8A29E;
+             padding: 0.5rem;
+             width: auto;
+             border-radius: 9999px;
+             transition: all 0.2s ease;
         }
-
-        /* Mode Specific Styling */
-        .form-wrapper {
-            position: relative; /* Container for absolute positioned mode sections */
-            width: 100%;
-            /* min-height will be set dynamically by JS to manage transitions */
+        .copy-button:hover {
+             background-color: #44403C; /* stone-700 */
+             color: #fff;
         }
-        .mode-section {
-            width: 100%;
-            transition: none; /* GSAP handles transforms and opacity */
-            position: absolute;
-            top: 0;
-            left: 0;
-            padding: 0; /* Padding is handled by .app-card for top level */
-            box-sizing: border-box;
-            background-color: transparent; /* Transparent, app-card has background */
-            height: auto; /* Allow height to adjust to content */
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            perspective: 1000px; /* For 3D transform */
-            transform-origin: center center; /* Ensure consistent origin for rotation */
+        .copy-button svg {
+             transition: transform 0.2s ease;
         }
-        #simpleModeSection {
-            transform: translateX(0%) rotateY(0deg);
-            opacity: 1;
-            z-index: 2;
-        }
-        #customModeSection {
-            transform: translateX(100%) rotateY(-90deg); /* Start off-screen and rotated */
-            opacity: 0;
-            z-index: 1;
-            pointer-events: none;
-        }
-        #outputSection {
-            position: static; /* Output section remains in normal flow */
-        }
-
-        /* Responsive adjustments */
-        @media (min-width: 768px) {
-            .app-card {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 3rem;
-                padding: 3rem;
-            }
-            .form-wrapper {
-                grid-column: 1;
-                position: relative;
-                min-height: 700px; /* Ensure enough height for transitions */
-            }
-            .output-section {
-                grid-column: 2;
-                display: flex;
-                flex-direction: column;
-                gap: 1.2rem;
-            }
-            .full-width {
-                grid-column: span 2;
-            }
-            .input-group {
-                margin-bottom: 1.2rem;
-            }
-
-            .mode-section {
-                padding: 0; /* Reset padding for grid item context */
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%; /* Fill form-wrapper height */
-                gap: 1.5rem;
-            }
-        }
+        
     </style>
 </head>
 <body>
-    <div class="hero-section" id="heroSection">
-        <h1>Generate Your Next Lyric</h1>
-        <p>12,223 lyrics generated so far.</p>
-    </div>
 
-    <div class="app-card" id="appCard">
-        <div class="form-wrapper" id="formWrapper">
-            <!-- Simple Mode Section -->
-            <div class="mode-section" id="simpleModeSection">
-                <h2 class="text-3xl font-bold text-center mb-6 text-white">Simple Lyric Mode</h2>
+    <div class="main-container">
+        <!-- Header -->
+        <header class="text-center mb-6 anim-in">
+            <div class="flex justify-center items-center gap-4 mb-6">
+                <span class="font-bold text-xl">LyricGen</span>
+                <span class="text-xs bg-blue-600 text-white py-1 px-2 rounded-md font-semibold">Beta</span>
+            </div>
+            <h1 class="hero-title">Generate your next Lyric masterpiece using AI</h1>
+        </header>
+        
+        <!-- Mode Toggle -->
+        <div class="text-center mb-6 anim-in" style="animation-delay: 0.2s;">
+            <div id="modeToggle" class="mode-toggle">
+                <div class="mode-toggle-slider"></div>
+                <div id="simpleModeBtn" class="mode-toggle-option active">Simple</div>
+                <div id="customModeBtn" class="mode-toggle-option">Custom</div>
+            </div>
+        </div>
 
-                <div class="input-group mb-4">
-                    <label for="songThemeSimple">1. Song Theme / Concept <span class="text-red-400">*</span></label>
-                    <input type="text" id="songThemeSimple" placeholder="e.g., Rediscovering old memories, A journey through a futuristic city">
+        <!-- Form Card -->
+        <main id="formCard" class="form-card">
+            <div class="p-6 md:p-8 space-y-6">
+                <div class="input-group">
+                    <label for="songTheme" class="form-label mb-2">
+                        <span class="number">1</span>
+                        Give us the brief (or write a few keywords or a brief).
+                    </label>
+                    <input type="text" id="songTheme" placeholder="e.g. Rainy day in Birmingham, feeling nostalgic">
                 </div>
 
-                <div class="input-group mb-4">
-                    <label for="targetPlatformSimple">2. Target Platform <span class="text-red-400">*</span></label>
-                    <select id="targetPlatformSimple" class="w-full">
-                        <option value="suno">Suno AI</option>
-                        <option value="general">General Lyrics</option>
-                    </select>
-                </div>
-
-                <div class="input-group mb-4">
-                    <label for="musicalStyleSimple">3. Musical Style / Genre <span class="text-red-400">*</span></label>
-                    <select id="musicalStyleSimple" class="w-full">
+                <div class="input-group">
+                    <label for="musicalStyle" class="form-label mb-2">
+                        <span class="number">2</span>
+                        Select musical style / genre
+                    </label>
+                    <select id="musicalStyle">
                         <option value="">Select a genre</option>
                         <option value="Pop">Pop</option>
                         <option value="Rock">Rock</option>
@@ -297,537 +255,319 @@
                         <option value="Electronic">Electronic</option>
                         <option value="Country">Country</option>
                         <option value="Folk">Folk</option>
+                        <option value="Lo-fi">Lo-fi</option>
+                        <option value="Metal">Metal</option>
                         <option value="Jazz">Jazz</option>
-                        <option value="Classical">Classical</soption>
-                        <option value="Blues">Blues</option>
-                        <option value="Indie">Indie</option>
-                        <option value="Alternative">Alternative</option>
-                        <option value="Lo-fi">Lo-fi</soption>
-                        <option value="Metal">Metal</soption>
-                        <option value="Reggae">Reggae</option>
+                        <option value="Classical">Classical</option>
+                        <option value="Soul">Soul</option>
                         <option value="Other">Other...</option>
                     </select>
-                    <input type="text" id="musicalStyleOtherSimple" class="mt-2 w-full hidden" placeholder="Enter custom genre">
+                    <input type="text" id="musicalStyleOther" class="mt-2 w-full hidden" placeholder="Enter custom genre">
                 </div>
-
-                <div class="input-group mb-6">
-                    <label for="toneMoodSimple">4. Tone / Mood <span class="text-red-400">*</span></label>
-                    <select id="toneMoodSimple" class="w-full">
+                
+                 <div class="input-group">
+                    <label for="toneMood" class="form-label mb-2">
+                        <span class="number">3</span>
+                        Select tone / mood
+                    </label>
+                    <select id="toneMood">
                         <option value="">Select a tone/mood</option>
                         <option value="Melancholic">Melancholic</option>
                         <option value="Uplifting">Uplifting</option>
                         <option value="Reflective">Reflective</option>
                         <option value="Energetic">Energetic</option>
-                        <option value="Calm">Calm</soption>
-                        <option value="Mysterious">Mysterious</option>
-                        <option value="Aggressive">Aggressive</option>
-                        <option value="Playful">Playful</option>
                         <option value="Romantic">Romantic</option>
                         <option value="Hopeful">Hopeful</option>
                         <option value="Dark">Dark</option>
-                        <option value="Other">Other...</option>
-                    </select>
-                    <input type="text" id="toneMoodOtherSimple" class="mt-2 w-full hidden" placeholder="Enter custom tone/mood">
-                </div>
-
-                <div id="errorMessageSimple" class="error-message"></div>
-
-                <button id="generateButtonSimple" class="w-full">
-                    <span>Generate Lyrics</span>
-                    <div class="loading-spinner"></div>
-                </button>
-                <button id="goToCustomModeButton" class="w-full mt-4 bg-gray-600 hover:bg-gray-700">Go to Custom Mode</button>
-            </div>
-
-            <!-- Custom Mode Section -->
-            <div class="mode-section" id="customModeSection">
-                <h2 class="text-3xl font-bold text-center mb-6 text-white">Custom Lyric Settings</h2>
-
-                <div class="input-group mb-4">
-                    <label for="songThemeCustom">1. Song Theme / Concept <span class="text-red-400">*</span></label>
-                    <input type="text" id="songThemeCustom" placeholder="e.g., Rediscovering old memories, A journey through a futuristic city">
-                </div>
-
-                <div class="input-group mb-4">
-                    <label for="targetPlatformCustom">2. Target Platform <span class="text-red-400">*</span></label>
-                    <select id="targetPlatformCustom" class="w-full">
-                        <option value="suno">Suno AI</option>
-                        <option value="general">General Lyrics</option>
-                    </select>
-                </div>
-
-                <div class="input-group mb-4">
-                    <label for="musicalStyleCustom">3. Musical Style / Genre <span class="text-red-400">*</span></label>
-                    <select id="musicalStyleCustom" class="w-full">
-                        <option value="">Select a genre</option>
-                        <option value="Pop">Pop</option>
-                        <option value="Rock">Rock</option>
-                        <option value="Hip Hop">Hip Hop</option>
-                        <option value="R&B">R&B</soption>
-                        <option value="Electronic">Electronic</option>
-                        <option value="Country">Country</option>
-                        <option value="Folk">Folk</option>
-                        <option value="Jazz">Jazz</option>
-                        <option value="Classical">Classical</soption>
-                        <option value="Blues">Blues</option>
-                        <option value="Indie">Indie</option>
-                        <option value="Alternative">Alternative</option>
-                        <option value="Lo-fi">Lo-fi</soption>
-                        <option value="Metal">Metal</soption>
-                        <option value="Reggae">Reggae</option>
-                        <option value="Other">Other...</option>
-                    </select>
-                    <input type="text" id="musicalStyleOtherCustom" class="mt-2 w-full hidden" placeholder="Enter custom genre">
-                </div>
-
-                <div class="input-group mb-4">
-                    <label for="toneMoodCustom">4. Tone / Mood <span class="text-red-400">*</span></label>
-                    <select id="toneMoodCustom" class="w-full">
-                        <option value="">Select a tone/mood</soption>
-                        <option value="Melancholic">Melancholic</option>
-                        <option value="Uplifting">Uplifting</option>
-                        <option value="Reflective">Reflective</option>
-                        <option value="Energetic">Energetic</option>
-                        <option value="Calm">Calm</soption>
-                        <option value="Mysterious">Mysterious</option>
                         <option value="Aggressive">Aggressive</option>
-                        <option value="Playful">Playful</option>
-                        <option value="Romantic">Romantic</option>
-                        <option value="Hopeful">Hopeful</option>
-                        <option value="Dark">Dark</option>
+                        <option value="Whimsical">Whimsical</option>
+                        <option value="Peaceful">Peaceful</option>
                         <option value="Other">Other...</option>
                     </select>
-                    <input type="text" id="toneMoodOtherCustom" class="mt-2 w-full hidden" placeholder="Enter custom tone/mood">
+                    <input type="text" id="toneMoodOther" class="mt-2 w-full hidden" placeholder="Enter custom tone/mood">
                 </div>
-
-                <div class="input-group mb-4">
-                    <label for="songStructureCustom">5. Song Structure (Optional)</label>
-                    <input type="text" id="songStructureCustom" placeholder="e.g., Verse-Chorus-Verse-Chorus-Bridge-Chorus-Outro">
-                </div>
-
-                <div class="input-group mb-4">
-                    <label for="rhymingStyleCustom">6. Rhyming Style (Optional)</label>
-                    <select id="rhymingStyleCustom" class="w-full">
-                        <option value="">Select a rhyming style</option>
-                        <option value="AABB">AABB</option>
-                        <option value="ABAB">ABAB</option>
-                        <option value="ABCB">ABCB</option>
-                        <option value="Free Verse">Free Verse</option>
-                        <option value="Slant Rhyme">Slant Rhyme</option>
-                        <option value="Internal Rhyme">Internal Rhyme</option>
-                        <option value="Other">Other...</option>
-                    </select>
-                    <input type="text" id="rhymingStyleOtherCustom" class="mt-2 w-full hidden" placeholder="Enter custom rhyming style">
-                </div>
-
-                <div class="input-group mb-6">
-                    <label for="otherIdeasCustom">7. Other Ideas / Constraints (Optional)</label>
-                    <textarea id="otherIdeasCustom" rows="4" placeholder="e.g., Focus on imagery related to water, Include a subtle political message"></textarea>
-                </div>
-
-                <div id="errorMessageCustom" class="error-message"></div>
-
-                <button id="generateButtonCustom" class="w-full">
-                    <span>Generate Lyrics</span>
-                    <div class="loading-spinner"></div>
-                </button>
-                <button id="backToSimpleModeButton" class="w-full mt-4 bg-gray-600 hover:bg-gray-700">Back to Simple Mode</button>
             </div>
-        </div>
 
-        <div class="output-section" id="outputSection">
-            <h3 class="text-2xl font-bold text-white mb-4">Generated Lyrics</h3>
-            <textarea id="generatedLyrics" readonly class="w-full"></textarea>
-            <button id="copyButton" class="w-full mt-4">Copy to Clipboard</button>
-        </div>
+            <!-- Custom Mode Options -->
+            <div id="customModeOptions" class="h-0 overflow-hidden">
+                <div class="p-6 md:p-8 pt-0 space-y-6 border-t border-stone-700/50 mt-6">
+                     <div class="input-group">
+                        <label for="songStructure" class="form-label mb-2">Song Structure</label>
+                        <select id="songStructure">
+                            <option value="Verse-Chorus-Verse-Chorus-Bridge-Chorus">Verse-Chorus-Verse-Chorus-Bridge-Chorus</option>
+                            <option value="Verse-Chorus-Verse-Chorus">Verse-Chorus-Verse-Chorus</option>
+                            <option value="Verse-PreChorus-Chorus-Verse-PreChorus-Chorus">Verse-PreChorus-Chorus...</option>
+                            <option value="Verse-Verse-Chorus-Verse">Verse-Verse-Chorus-Verse</option>
+                            <option value="Call & Response">Call & Response</option>
+                            <option value="Blues Progression">12-Bar Blues Progression</option>
+                            <option value="Other">Other...</option>
+                            <option value="Go Wild">Go Wild</option>
+                        </select>
+                        <input type="text" id="songStructureOther" class="mt-2 w-full hidden" placeholder="Enter custom structure">
+                    </div>
+                     <div class="input-group">
+                        <label for="lyricalComplexity" class="form-label mb-2">Lyrical Complexity</label>
+                        <select id="lyricalComplexity">
+                            <option value="Simple and direct">Simple and direct</option>
+                            <option value="Moderately abstract">Moderately abstract</option>
+                            <option value="Highly metaphorical and poetic">Highly metaphorical and poetic</option>
+                            <option value="Storytelling narrative">Storytelling narrative</option>
+                            <option value="Stream of consciousness">Stream of consciousness</option>
+                            <option value="Other">Other...</option>
+                            <option value="Go Wild">Go Wild</option>
+                        </select>
+                        <input type="text" id="lyricalComplexityOther" class="mt-2 w-full hidden" placeholder="Enter custom complexity">
+                    </div>
+                    <div class="input-group">
+                        <label for="rhymeScheme" class="form-label mb-2">Rhyme Scheme</label>
+                        <select id="rhymeScheme">
+                            <option value="AABB">AABB</option>
+                            <option value="ABAB">ABAB</option>
+                            <option value="ABCB">ABCB</option>
+                            <option value="AABA">AABA</option>
+                            <option value="AAAA">AAAA</option>
+                            <option value="Free verse (no strict rhyme)">Free verse</option>
+                            <option value="Other">Other...</option>
+                            <option value="Go Wild">Go Wild</option>
+                        </select>
+                         <input type="text" id="rhymeSchemeOther" class="mt-2 w-full hidden" placeholder="Enter custom rhyme scheme">
+                    </div>
+                    <div class="input-group">
+                        <label for="outputFormat" class="form-label mb-2">Output Format</label>
+                        <select id="outputFormat">
+                            <option value="Suno AI">Suno AI Format</option>
+                            <option value="Standard">Standard Lyrics</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 md:p-8 pt-0">
+                <div id="errorMessage" class="text-yellow-400 bg-yellow-900/50 p-3 rounded-lg text-sm hidden mb-6"></div>
+                <button id="generateButton" class="action-button">
+                    <span id="buttonText">Generate your lyrics</span>
+                    <div id="buttonSpinner" class="loading-spinner hidden"></div>
+                </button>
+            </div>
+        </main>
+        
+        <!-- Output Card -->
+        <section id="outputCard" class="output-card p-6 md:p-8">
+            <div id="titleSection" class="flex items-center gap-4">
+                <h3 id="suggestedTitle" class="flex-grow"></h3>
+                <button id="copyTitleBtn" class="copy-button flex-shrink-0">
+                    <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5-.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3z"/></svg>
+                    <svg class="check-icon hidden" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022z"/></svg>
+                </button>
+            </div>
+            
+            <div class="mt-6">
+                 <div class="flex justify-between items-center mb-4">
+                    <h4 class="text-lg font-bold text-stone-300">Refined Lyrics</h4>
+                    <button id="copyLyricsBtn" class="copy-button">
+                        <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5-.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3z"/></svg>
+                        <svg class="check-icon hidden" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022z"/></svg>
+                    </button>
+                </div>
+                <textarea id="generatedLyrics" readonly class="w-full font-mono text-sm p-4 rounded-lg"></textarea>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center mt-10 text-stone-500 text-sm anim-in">
+            <p>Created with Gemini</p>
+        </footer>
     </div>
 
     <script>
-        // Get references to DOM elements
-        const heroSection = document.getElementById('heroSection');
-        const appCard = document.getElementById('appCard');
-        const formWrapper = document.getElementById('formWrapper');
-        const simpleModeSection = document.getElementById('simpleModeSection');
-        const customModeSection = document.getElementById('customModeSection');
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- App State ---
+            let currentMode = 'simple';
+            let isOutputVisible = false;
 
-        // Simple Mode Inputs
-        const songThemeSimple = document.getElementById('songThemeSimple');
-        const targetPlatformSimple = document.getElementById('targetPlatformSimple');
-        const musicalStyleSimple = document.getElementById('musicalStyleSimple');
-        const musicalStyleOtherSimple = document.getElementById('musicalStyleOtherSimple');
-        const toneMoodSimple = document.getElementById('toneMoodSimple');
-        const toneMoodOtherSimple = document.getElementById('toneMoodOtherSimple');
-        const generateButtonSimple = document.getElementById('generateButtonSimple');
-        const errorMessageSimple = document.getElementById('errorMessageSimple');
-        const goToCustomModeButton = document.getElementById('goToCustomModeButton');
+            // --- DOM Elements ---
+            const songTheme = document.getElementById('songTheme');
+            const musicalStyle = document.getElementById('musicalStyle');
+            const musicalStyleOther = document.getElementById('musicalStyleOther');
+            const toneMood = document.getElementById('toneMood');
+            const toneMoodOther = document.getElementById('toneMoodOther');
+            
+            const customModeOptions = document.getElementById('customModeOptions');
+            const songStructure = document.getElementById('songStructure');
+            const songStructureOther = document.getElementById('songStructureOther');
+            const lyricalComplexity = document.getElementById('lyricalComplexity');
+            const lyricalComplexityOther = document.getElementById('lyricalComplexityOther');
+            const rhymeScheme = document.getElementById('rhymeScheme');
+            const rhymeSchemeOther = document.getElementById('rhymeSchemeOther');
+            const outputFormat = document.getElementById('outputFormat');
 
-        // Custom Mode Inputs
-        const songThemeCustom = document.getElementById('songThemeCustom');
-        const targetPlatformCustom = document.getElementById('targetPlatformCustom');
-        const musicalStyleCustom = document.getElementById('musicalStyleCustom');
-        const musicalStyleOtherCustom = document.getElementById('musicalStyleOtherCustom');
-        const toneMoodCustom = document.getElementById('toneMoodCustom');
-        const toneMoodOtherCustom = document.getElementById('toneMoodOtherCustom');
-        const songStructureCustom = document.getElementById('songStructureCustom');
-        const rhymingStyleCustom = document.getElementById('rhymingStyleCustom');
-        const rhymingStyleOtherCustom = document.getElementById('rhymingStyleOtherCustom');
-        const otherIdeasCustom = document.getElementById('otherIdeasCustom');
-        const generateButtonCustom = document.getElementById('generateButtonCustom');
-        const errorMessageCustom = document.getElementById('errorMessageCustom');
-        const backToSimpleModeButton = document.getElementById('backToSimpleModeButton');
+            const modeToggle = document.getElementById('modeToggle');
+            const simpleModeBtn = document.getElementById('simpleModeBtn');
+            const customModeBtn = document.getElementById('customModeBtn');
+            const modeToggleSlider = document.querySelector('.mode-toggle-slider');
 
-        // Output Section
-        const outputSection = document.getElementById('outputSection');
-        const generatedLyricsTextarea = document.getElementById('generatedLyrics');
-        const copyButton = document.getElementById('copyButton');
+            const generateButton = document.getElementById('generateButton');
+            const buttonText = document.getElementById('buttonText');
+            const buttonSpinner = document.getElementById('buttonSpinner');
+            
+            const errorMessage = document.getElementById('errorMessage');
+            
+            const outputCard = document.getElementById('outputCard');
+            const suggestedTitle = document.getElementById('suggestedTitle');
+            const copyTitleBtn = document.getElementById('copyTitleBtn');
+            
+            const generatedLyrics = document.getElementById('generatedLyrics');
+            const copyLyricsBtn = document.getElementById('copyLyricsBtn');
 
-        // Predefined options for randomization
-        const defaultRhymingStyles = ["ABAB", "ABCB", "Free Verse", "Slant Rhyme", "Internal Rhyme"]; // Excludes AABB
-        const defaultSongStructures = ["Verse-Chorus-Verse-Chorus-Bridge-Chorus-Outro", "Verse-Verse-Bridge-Chorus-Outro", "Chorus-Verse-Chorus-Verse-Bridge-Outro"];
+            // --- GSAP Animations ---
+            gsap.from(".anim-in", { duration: 1, opacity: 0, y: 20, stagger: 0.1, ease: "power3.out" });
+            gsap.from("#formCard", { duration: 1, opacity: 0, y: 20, delay: 0.3, ease: "power3.out" });
+            gsap.from("#formCard > .p-6 > .input-group, #generateButton", { duration: 0.8, opacity: 0, y: 15, stagger: 0.05, delay: 0.6, ease: "power2.out" });
 
-        // Initial GSAP Animations for hero section and app card
-        gsap.from(heroSection, { duration: 1.2, opacity: 0, y: 20, ease: "power3.out" });
-        gsap.from(appCard, { duration: 1.2, opacity: 0, y: 20, ease: "power3.out", delay: 0.4 });
-        gsap.from(".input-group", { duration: 0.9, y: 20, opacity: 0, stagger: 0.12, ease: "back.out(1.2)", delay: 0.7 });
-        gsap.from("#generateButtonSimple, #goToCustomModeButton", { duration: 0.9, y: 20, opacity: 0, ease: "back.out(1.2)", delay: 1.0 });
-
-
-        /**
-         * Toggles the visibility of an "Other" input field based on dropdown selection.
-         * @param {HTMLSelectElement} selectElement - The dropdown select element.
-         * @param {HTMLInputElement} otherInputElement - The "Other" text input element.
-         */
-        function toggleOtherInputField(selectElement, otherInputElement) {
-            if (selectElement.value === 'Other') {
-                gsap.to(otherInputElement, { duration: 0.4, height: "auto", opacity: 1, display: "block", ease: "power2.out" });
-            } else {
-                gsap.to(otherInputElement, { duration: 0.4, height: 0, opacity: 0, display: "none", ease: "power2.out", onComplete: () => {
-                    otherInputElement.value = ''; // Clear the input when hidden
-                }});
-            }
-        }
-
-        // Add event listeners for dropdowns to toggle "Other" input fields for both modes
-        musicalStyleSimple.addEventListener('change', () => toggleOtherInputField(musicalStyleSimple, musicalStyleOtherSimple));
-        toneMoodSimple.addEventListener('change', () => toggleOtherInputField(toneMoodSimple, toneMoodOtherSimple));
-
-        musicalStyleCustom.addEventListener('change', () => toggleOtherInputField(musicalStyleCustom, musicalStyleOtherCustom));
-        toneMoodCustom.addEventListener('change', () => toggleOtherInputField(toneMoodCustom, toneMoodOtherCustom));
-        rhymingStyleCustom.addEventListener('change', () => toggleOtherInputField(rhymingStyleCustom, rhymingStyleOtherCustom));
-
-        /**
-         * Displays an error message to the user for the current active mode.
-         * @param {string} message - The error message to display.
-         * @param {string} mode - 'simple' or 'custom'
-         */
-        function displayError(message, mode) {
-            const errorMessageDiv = mode === 'simple' ? errorMessageSimple : errorMessageCustom;
-            errorMessageDiv.textContent = message;
-            errorMessageDiv.style.display = 'block';
-            gsap.fromTo(errorMessageDiv, { opacity: 0, y: -10, scale: 0.8 }, { opacity: 1, y: 0, scale: 1, duration: 0.4, ease: "back.out(1.7)" });
-        }
-
-        /**
-         * Clears any displayed error messages for the current active mode.
-         * @param {string} mode - 'simple' or 'custom'
-         */
-        function clearError(mode) {
-            const errorMessageDiv = mode === 'simple' ? errorMessageSimple : errorMessageCustom;
-            gsap.to(errorMessageDiv, { opacity: 0, y: -10, scale: 0.8, duration: 0.3, ease: "power2.in", onComplete: () => {
-                errorMessageDiv.style.display = 'none';
-                errorMessageDiv.textContent = '';
-            }});
-        }
-
-        /**
-         * Gets a random element from an array.
-         * @param {Array} arr - The array to pick from.
-         * @returns {*} A random element from the array.
-         */
-        function getRandomElement(arr) {
-            return arr[Math.floor(Math.random() * arr.length)];
-        }
-
-        /**
-         * Handles the transition to Simple Mode.
-         */
-        function showSimpleMode() {
-            gsap.timeline()
-                .to(customModeSection, {
-                    x: '100%',
-                    rotationY: -90,
-                    opacity: 0,
-                    duration: 0.6,
-                    ease: "power2.inOut",
-                    onComplete: () => {
-                        customModeSection.style.pointerEvents = 'none';
-                        simpleModeSection.style.pointerEvents = 'auto';
-                        customModeSection.style.display = 'none'; /* Hide after transition */
-                    }
-                })
-                .fromTo(simpleModeSection,
-                    { x: '-100%', rotationY: 90, opacity: 0, display: 'flex' }, /* Start off-screen, rotated */
-                    { x: '0%', rotationY: 0, opacity: 1, duration: 0.6, ease: "power2.inOut", delay: -0.3 } /* Overlap transition */
-                );
-
-            // Adjust formWrapper height dynamically
-            gsap.to(formWrapper, { height: simpleModeSection.offsetHeight + 'px', duration: 0.6, delay: 0.2, ease: "power2.inOut" });
-        }
-
-        /**
-         * Handles the transition to Custom Mode.
-         * Copies current simple mode values to custom mode inputs.
-         */
-        function showCustomMode() {
-            // Copy values from simple to custom inputs before animating
-            songThemeCustom.value = songThemeSimple.value;
-            targetPlatformCustom.value = targetPlatformSimple.value;
-            musicalStyleCustom.value = musicalStyleSimple.value;
-            musicalStyleOtherCustom.value = musicalStyleOtherSimple.value;
-            toneMoodCustom.value = toneMoodSimple.value;
-            toneMoodOtherCustom.value = toneMoodOtherSimple.value;
-
-            // Ensure 'Other' fields are displayed/hidden correctly after copying
-            toggleOtherInputField(musicalStyleCustom, musicalStyleOtherCustom);
-            toggleOtherInputField(toneMoodCustom, toneMoodOtherCustom);
-
-            gsap.timeline()
-                .to(simpleModeSection, {
-                    x: '-100%',
-                    rotationY: 90,
-                    opacity: 0,
-                    duration: 0.6,
-                    ease: "power2.inOut",
-                    onComplete: () => {
-                        simpleModeSection.style.pointerEvents = 'none';
-                        customModeSection.style.pointerEvents = 'auto';
-                        simpleModeSection.style.display = 'none'; /* Hide after transition */
-                    }
-                })
-                .fromTo(customModeSection,
-                    { x: '100%', rotationY: -90, opacity: 0, display: 'flex' }, /* Start off-screen, rotated */
-                    { x: '0%', rotationY: 0, opacity: 1, duration: 0.6, ease: "power2.inOut", delay: -0.3 } /* Overlap transition */
-                );
-
-            // Adjust formWrapper height dynamically
-            gsap.to(formWrapper, { height: customModeSection.offsetHeight + 'px', duration: 0.6, delay: 0.2, ease: "power2.inOut" });
-        }
-
-        // Set initial formWrapper height based on simple mode
-        window.addEventListener('load', () => {
-             // Use a small delay to ensure initial render calculations are complete
-             setTimeout(() => {
-                formWrapper.style.height = simpleModeSection.offsetHeight + 'px';
-             }, 100); // 100ms delay to allow DOM to fully render
-
-             // Initial setup for output section visibility on load
-             if (window.innerWidth >= 768) {
-                outputSection.style.display = 'flex';
-                outputSection.style.opacity = 1;
-            }
-        });
-        window.addEventListener('resize', () => {
-            // Recalculate height on resize for responsive layouts
-            // Use a small delay to ensure layout recalculations are complete
-            setTimeout(() => {
-                if (simpleModeSection.style.transform === 'translateX(0%)' || simpleModeSection.style.opacity == 1) {
-                    formWrapper.style.height = simpleModeSection.offsetHeight + 'px';
+            // --- Functions ---
+            
+            function setMode(mode) {
+                currentMode = mode;
+                if (mode === 'simple') {
+                    simpleModeBtn.classList.add('active');
+                    customModeBtn.classList.remove('active');
+                    gsap.to(modeToggleSlider, { x: 0, width: simpleModeBtn.offsetWidth, ease: 'power3.inOut' });
+                    gsap.to(customModeOptions, { height: 0, duration: 0.4, ease: 'power3.inOut' });
                 } else {
-                    formWrapper.style.height = customModeSection.offsetHeight + 'px';
+                    simpleModeBtn.classList.remove('active');
+                    customModeBtn.classList.add('active');
+                    gsap.to(modeToggleSlider, { x: simpleModeBtn.offsetWidth, width: customModeBtn.offsetWidth, ease: 'power3.inOut' });
+                    gsap.to(customModeOptions, { height: 'auto', duration: 0.4, ease: 'power3.inOut' });
                 }
-                // Also handle output section visibility on resize
-                if (window.innerWidth >= 768) {
-                    outputSection.style.display = 'flex';
-                    outputSection.style.opacity = 1;
-                } else if (generatedLyricsTextarea.value.trim() === '') {
-                    outputSection.style.display = 'none';
+            }
+            gsap.set(modeToggleSlider, { width: simpleModeBtn.offsetWidth });
+
+            function toggleOtherInput(selectElement, otherInputElement) {
+                 if (selectElement.value === 'Other') {
+                    otherInputElement.classList.remove('hidden');
+                    gsap.fromTo(otherInputElement, {height: 0, opacity: 0, marginTop: 0}, { duration: 0.3, height: 'auto', opacity: 1, marginTop: '0.5rem', ease: "power2.out" });
+                } else {
+                    gsap.to(otherInputElement, { duration: 0.3, height: 0, opacity: 0, marginTop: 0, ease: "power2.in", onComplete: () => {
+                        otherInputElement.classList.add('hidden');
+                        otherInputElement.value = ''; 
+                    }});
                 }
-            }, 50); // Small delay to account for browser layout recalculations
-        });
-
-
-        /**
-         * Constructs the detailed prompt for the AI based on user inputs and hardcoded rules.
-         * @param {string} currentMode - The active mode ('simple' or 'custom').
-         * @returns {string} The constructed prompt string.
-         */
-        function constructPrompt(currentMode) {
-            let songTheme, targetPlatform, musicalStyle, toneMood, songStructure, rhymingStyle, otherIdeas;
-
-            if (currentMode === 'simple') {
-                songTheme = songThemeSimple.value.trim();
-                targetPlatform = targetPlatformSimple.value;
-                musicalStyle = musicalStyleSimple.value.trim();
-                if (musicalStyle === 'Other') musicalStyle = musicalStyleOtherSimple.value.trim();
-                toneMood = toneMoodSimple.value.trim();
-                if (toneMood === 'Other') toneMood = toneMoodOtherSimple.value.trim();
-                songStructure = getRandomElement(defaultSongStructures); // Randomize for simple mode
-                rhymingStyle = getRandomElement(defaultRhymingStyles); // Randomize for simple mode (excluding AABB)
-                otherIdeas = ''; // Not available in simple mode
-            } else { // custom mode
-                songTheme = songThemeCustom.value.trim();
-                targetPlatform = targetPlatformCustom.value;
-                musicalStyle = musicalStyleCustom.value.trim();
-                if (musicalStyle === 'Other') musicalStyle = musicalStyleOtherCustom.value.trim();
-                toneMood = toneMoodCustom.value.trim();
-                if (toneMood === 'Other') toneMood = toneMoodOtherCustom.value.trim();
-                songStructure = songStructureCustom.value.trim();
-                rhymingStyle = rhymingStyleCustom.value.trim();
-                if (rhymingStyle === 'Other') rhymingStyle = rhymingStyleOtherCustom.value.trim();
-                otherIdeas = otherIdeasCustom.value.trim();
             }
 
-            // Hardcoded songwriting rules
-            const songwritingRules = [
-                "Avoid common AI lyrical tropes.",
-                "DO NOT use the following words or their variations: ignite, take flight, unfold, break the mould, echoes.",
-                "Inject vivid imagery and unique metaphors.",
-                "Avoid predictable rhyme schemes and cliched phrases.",
-                "Ensure lyrics deeply evoke the specified mood and theme, creating a compelling emotional narrative.",
-                `Consider the top hits and underrated artists/songs within the '${musicalStyle}' genre(s) for inspiration, subtly integrating their stylistic elements and depth without explicitly naming them.`
-            ];
-
-            let prompt = `You are an expert songwriter specializing in soulful, electronic, and experimental styles.`;
-            prompt += `\n\nYour task is to generate **high-quality, highly creative, and unique** song lyrics.`;
-
-            // Include hardcoded songwriting rules
-            prompt += `\n\nAdhere strictly to the following songwriting rules:\n`;
-            songwritingRules.forEach(rule => {
-                prompt += `- ${rule}\n`;
-            });
-
-            // Add Suno-specific instructions if targetPlatform is 'suno'
-            if (targetPlatform === 'suno') {
-                prompt += `\n\nYour output MUST be formatted specifically for Suno AI, including structural tags like [Verse 1], [Chorus], [Bridge], [Outro], and musical direction cues like [Music Explodes - Driving Beat], [Synth Swells], [Beat Drops]. Ensure these cues align with the musical style.`;
+            function displayError(message) {
+                errorMessage.textContent = message;
+                errorMessage.classList.remove('hidden');
+                gsap.fromTo(errorMessage, { opacity: 0, y: -10 }, { duration: 0.4, opacity: 1, y: 0, ease: "back.out(1.7)" });
             }
 
-            prompt += `\n\n---`;
-            prompt += `\nSong Theme / Concept: ${songTheme}`;
-            prompt += `\nMusical Style / Genre: ${musicalStyle}`;
-            prompt += `\nTone / Mood: ${toneMood} (Ensure the lyrics strongly convey this specific emotion throughout.)`;
-
-            if (songStructure) {
-                prompt += `\nSong Structure: ${songStructure}`;
-            }
-            if (rhymingStyle) {
-                prompt += `\nRhyming Style: ${rhymingStyle}`;
-            }
-            if (otherIdeas) {
-                prompt += `\nOther Ideas / Constraints: ${otherIdeas}`;
-            }
-            prompt += `\n---`;
-
-            prompt += `\n\nOutput ONLY the song lyrics. Do not include any introductory or concluding text, or any conversational remarks.`;
-
-            if (targetPlatform === 'suno') {
-                prompt += `\n\nGenerate the lyrics in Suno AI format, focusing on fresh, evocative language:`;
-            } else {
-                prompt += `\n\nGenerate the lyrics, focusing on fresh, evocative language:`;
+            function clearError() {
+                if (!errorMessage.classList.contains('hidden')) {
+                    gsap.to(errorMessage, { duration: 0.3, opacity: 0, ease: "power2.in", onComplete: () => {
+                        errorMessage.classList.add('hidden');
+                    }});
+                }
             }
 
-            return prompt;
-        }
-
-        /**
-         * Handles the "Generate Lyrics" button click event for either mode.
-         * @param {string} currentMode - The active mode ('simple' or 'custom').
-         */
-        async function handleGenerateLyrics(currentMode) {
-            clearError(currentMode);
-
-            let songThemeInputRef, targetPlatformSelectRef, musicalStyleSelectRef, musicalStyleOtherRef, toneMoodSelectRef, toneMoodOtherRef, generateButtonRef, errorMessageRef;
-
-            if (currentMode === 'simple') {
-                songThemeInputRef = songThemeSimple;
-                targetPlatformSelectRef = targetPlatformSimple;
-                musicalStyleSelectRef = musicalStyleSimple;
-                musicalStyleOtherRef = musicalStyleOtherSimple;
-                toneMoodSelectRef = toneMoodSimple;
-                toneMoodOtherRef = toneMoodOtherSimple;
-                generateButtonRef = generateButtonSimple;
-                errorMessageRef = errorMessageSimple;
-            } else { // custom mode
-                songThemeInputRef = songThemeCustom;
-                targetPlatformSelectRef = targetPlatformCustom;
-                musicalStyleSelectRef = musicalStyleCustom;
-                musicalStyleOtherRef = musicalStyleOtherCustom;
-                toneMoodSelectRef = toneMoodCustom;
-                toneMoodOtherRef = toneMoodOtherCustom;
-                generateButtonRef = generateButtonCustom;
-                errorMessageRef = errorMessageCustom;
-            }
-
-            const requiredFields = [
-                { name: 'Song Theme / Concept', element: songThemeInputRef },
-                { name: 'Target Platform', element: targetPlatformSelectRef },
-                { name: 'Musical Style / Genre', element: musicalStyleSelectRef },
-                { name: 'Tone / Mood', element: toneMoodSelectRef }
-            ];
-
-            let allFieldsFilled = true;
-            for (const field of requiredFields) {
-                let value;
-                if (field.element.tagName === 'SELECT') {
-                    value = field.element.value;
-                    if (value === "") {
-                        displayError(`Please select an option for '${field.name}'.`, currentMode);
-                        allFieldsFilled = false;
-                        gsap.to(field.element, { duration: 0.2, x: -5, yoyo: true, repeat: 3, ease: "power1.inOut", borderBottomColor: "#fc8181" });
-                        break;
-                    }
+            function getUserInputs() {
+                let isValid = true;
+                const shake = (el) => gsap.fromTo(el.parentElement, {x: -6}, {x: 0, duration: 0.5, ease: 'elastic.out(1, 0.3)', clearProps: 'x'});
+                
+                const getSelectValue = (selectEl, otherEl, paramName) => {
+                    let value = selectEl.value;
                     if (value === 'Other') {
-                        let otherInput;
-                        if (field.name === 'Musical Style / Genre') otherInput = (currentMode === 'simple' ? musicalStyleOtherSimple : musicalStyleOtherCustom);
-                        else if (field.name === 'Tone / Mood') otherInput = (currentMode === 'simple' ? toneMoodOtherSimple : toneMoodOtherCustom);
-                        else if (field.name === 'Rhyming Style') otherInput = rhymingStyleOtherCustom; // Only in custom mode
-                        else continue;
-
-                        if (!otherInput || !otherInput.value.trim()) {
-                            displayError(`Please enter a custom value for '${field.name}'.`, currentMode);
-                            allFieldsFilled = false;
-                            gsap.to(otherInput, { duration: 0.2, x: -5, yoyo: true, repeat: 3, ease: "power1.inOut", borderBottomColor: "#fc8181" });
-                            break;
+                        value = otherEl.value.trim();
+                        if (!value) {
+                            displayError(`Please enter your custom choice for ${selectEl.previousElementSibling.textContent}.`);
+                            shake(otherEl);
+                            isValid = false;
                         }
+                    } else if (value === 'Go Wild') {
+                        return `Go Wild: For the ${paramName}, you have complete freedom to be highly experimental. Abandon all traditional rules for this parameter to create something unexpected and avant-garde. Do not make a safe or basic choice.`;
+                    } else if (!value) {
+                         displayError(`Please select an option for ${selectEl.previousElementSibling.textContent}.`);
+                         shake(selectEl);
+                         isValid = false;
+                    }
+                    return value;
+                };
+
+                const inputs = {
+                    theme: songTheme.value.trim(),
+                    style: getSelectValue(musicalStyle, musicalStyleOther, 'Musical Style'),
+                    mood: getSelectValue(toneMood, toneMoodOther, 'Tone/Mood'),
+                };
+
+                if (!inputs.theme) {
+                    displayError('Please provide a theme or some keywords.');
+                    shake(songTheme); isValid = false;
+                }
+
+                if(currentMode === 'custom') {
+                    inputs.structure = getSelectValue(songStructure, songStructureOther, 'Song Structure');
+                    inputs.complexity = getSelectValue(lyricalComplexity, lyricalComplexityOther, 'Lyrical Complexity');
+                    inputs.rhymeScheme = getSelectValue(rhymeScheme, rhymeSchemeOther, 'Rhyme Scheme');
+                    inputs.sunoFormat = outputFormat.value === 'Suno AI';
+                } else {
+                    inputs.structure = 'Verse-Chorus-Verse-Chorus-Bridge-Chorus';
+                    inputs.complexity = 'Creatively determine an appropriate lyrical complexity that best fits the theme and mood. Do not default to a simple choice.';
+                    inputs.rhymeScheme = 'Creatively determine an appropriate rhyme scheme that best fits the theme and mood. Do not default to a simple choice.';
+                    inputs.sunoFormat = true;
+                }
+
+                return isValid ? inputs : null;
+            }
+
+            function constructFinalPrompt(userInputs) {
+                const coreRules = [
+                        "Adopt the persona of a modern songwriter like Jade Thirlwall, Jack Garratt, or Livingston. Prioritize emotional honesty and conversational language over complex poetry. The lyrics should sound like thoughts spoken aloud, grounded in tangible, everyday details.",
+                        "Incorporate rhythmic variation by using a mix of short, medium, and long sentences. As Gary Provost wrote, 'Don't just write words. Write music.' This creates a more natural and engaging flow.",
+                        "Always write from a strong, first-person perspective ('I', 'me', 'my'). Ground the lyrics in personal feelings and sensory details. Instead of saying 'the room was messy,' say 'my clothes were all over the floor.'",
+                        "Each line must be a complete thought. Do not split a single lyrical idea across two lines (e.g., BAD: 'The morning light, an oily sheen / A tiny oversight, unchecked'. GOOD: 'The morning light cast an oily sheen / A tiny oversight I left unchecked').",
+                        "Do not output any introductory text like 'Here are your song lyrics:' or any conversational filler. Only output the lyrics and nothing else.",
+                        "Avoid common AI lyrical tropes and cliches (e.g., 'story untold', 'shadows dance', 'in the pouring rain', 'shattered remnants', 'deafening silence')."
+                ];
+
+                let formattingInstructions = "";
+                if (userInputs.sunoFormat) {
+                    if (userInputs.structure === 'Call & Response') {
+                         formattingInstructions = "Format the lyrics for Suno AI. Use square brackets `[]` for structure and cues (e.g., [Verse]). For the Call & Response, place the 'response' on a new line enclosed in round brackets `()`. Do NOT use voice labels like [Voice 1].";
+                    } else {
+                         formattingInstructions = "Format the lyrics for Suno AI. Use square brackets `[]` for ALL annotations (e.g., [Verse], [Guitar Solo]). Use round brackets `()` ONLY for backing vocals (e.g., (oohs and aahs)).";
                     }
                 } else {
-                    value = field.element.value.trim();
-                    if (!value) {
-                        displayError(`Please fill in the '${field.name}' field.`, currentMode);
-                        allFieldsFilled = false;
-                        gsap.to(field.element, { duration: 0.2, x: -5, yoyo: true, repeat: 3, ease: "power1.inOut", borderBottomColor: "#fc8181" });
-                        break;
-                    }
+                    formattingInstructions = "Do not include any structural tags like [Verse] or [Chorus].";
                 }
+                
+                let prompt = `You are to act as a specific persona: a modern, conversational songwriter who understands rhythmic variation.
+                
+                **Core Directives:**
+                ${coreRules.join('\n- ')}
+
+                **Your Task:**
+                Based on the following user request, generate a complete and final set of song lyrics, embodying the persona and following all directives.
+                
+                ---
+                **User Request:**
+                - Theme: ${userInputs.theme}
+                - Style: ${userInputs.style}
+                - Mood: ${userInputs.mood}`;
+
+                if (currentMode === 'custom') {
+                    prompt += `\n- Song Structure: ${userInputs.structure}`;
+                    prompt += `\n- Lyrical Complexity: ${userInputs.complexity}`;
+                    prompt += `\n- Rhyme Scheme: ${userInputs.rhymeScheme}`;
+                }
+                prompt += `\n---`;
+
+                
+                prompt += `\n**Formatting Rules:**\n${formattingInstructions}`;
+                prompt += "\n\nProduce the final lyrics now.";
+                return prompt;
             }
-
-            if (!allFieldsFilled) {
-                return;
-            }
-
-            // Animate button for loading state
-            const buttonTextSpan = generateButtonRef.querySelector('span');
-            const buttonSpinner = generateButtonRef.querySelector('.loading-spinner');
-
-            generateButtonRef.disabled = true;
-            // GSAP timeline for button loading animation
-            const loadingTimeline = gsap.timeline({ repeat: -1, yoyo: true });
-            loadingTimeline.to(generateButtonRef, { duration: 0.3, backgroundColor: "#4a5568", boxShadow: "none", scale: 1.02, ease: "power2.inOut" })
-                           .to(buttonTextSpan, { duration: 0.3, opacity: 0, x: -10, ease: "power2.inOut", onComplete: () => {
-                                buttonTextSpan.style.display = 'none';
-                                buttonTextSpan.textContent = 'Generating...';
-                            }}, 0)
-                           .to(buttonSpinner, { duration: 0.3, opacity: 1, scale: 1, display: 'block', ease: "power2.inOut" }, 0.1);
-
-
-            try {
-                const prompt = constructPrompt(currentMode);
-                console.log("Constructed Prompt:\n", prompt);
-
-                let chatHistory = [];
-                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
-
-                const payload = { contents: chatHistory };
-                const apiKey = ""; // Canvas will provide this at runtime
+            
+            async function callGemini(prompt) {
+                const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
+                const apiKey = "";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
                 const response = await fetch(apiUrl, {
@@ -835,98 +575,112 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("HTTP error response body:", errorText);
+                    throw new Error(`Network response was not ok. Status: ${response.status}.`);
+                }
+                
                 const result = await response.json();
-
-                if (result.candidates && result.candidates.length > 0 &&
-                    result.candidates[0].content && result.candidates[0].content.parts &&
-                    result.candidates[0].content.parts.length > 0) {
-                    const text = result.candidates[0].content.parts[0].text;
-                    generatedLyricsTextarea.value = text;
+                let textContent = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                
+                if (textContent) {
+                    textContent = textContent.replace(/^```(?:\w+\n)?/g, '').replace(/```$/g, '').trim();
+                    return textContent;
                 } else {
-                    console.error("Gemini API returned an unexpected response structure:", result);
-                    displayError("Failed to generate lyrics. Please try again. Check console for details.", currentMode);
+                    const blockReason = result.promptFeedback?.blockReason;
+                    if (blockReason) { throw new Error(`Request blocked: ${blockReason}.`); } 
+                    else { throw new Error("The AI returned an empty or invalid response."); }
                 }
-
-                if (outputSection.style.display === 'none' || outputSection.style.display === '') {
-                    outputSection.style.display = 'flex';
-                    gsap.fromTo(outputSection, { opacity: 0, y: 30, scale: 0.95 }, { opacity: 1, y: 0, scale: 1, duration: 1, ease: "power3.out", delay: 0.2 });
-                }
-            } catch (error) {
-                console.error("Error generating lyrics:", error);
-                displayError("An error occurred during lyric generation. Please try again. Check console for network errors.", currentMode);
-            } finally {
-                // Kill loading timeline and revert button animation
-                loadingTimeline.kill(); // Stop the loading animation loop
-                gsap.timeline()
-                    .to(buttonSpinner, { duration: 0.3, opacity: 0, scale: 0, ease: "power2.inOut", onComplete: () => {
-                        buttonSpinner.style.display = 'none';
-                    }})
-                    .to(buttonTextSpan, { duration: 0.3, opacity: 1, x: 0, ease: "power2.inOut", onStart: () => {
-                        buttonTextSpan.style.display = 'block';
-                        buttonTextSpan.textContent = 'Generate Lyrics'; // Revert text
-                    }}, 0.2) // Start slightly after spinner hides
-                    .to(generateButtonRef, { duration: 0.3, background: "linear-gradient(90deg, #667eea, #7f9cf5)", boxShadow: "0 8px 15px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2)", scale: 1, ease: "power2.inOut" }, 0.2);
-                generateButtonRef.disabled = false;
             }
-        }
 
-        /**
-         * Copies the generated lyrics to the clipboard.
-         */
-        function handleCopyLyrics() {
-            generatedLyricsTextarea.select();
-            try {
+            async function handleGenerate() {
+                const userInputs = getUserInputs();
+                if (!userInputs) return;
+
+                generateButton.disabled = true;
+                buttonSpinner.classList.remove('hidden');
+                clearError();
+
+                try {
+                    buttonText.textContent = 'Writing...';
+                    const finalPrompt = constructFinalPrompt(userInputs);
+                    const finalLyrics = await callGemini(finalPrompt);
+                    generatedLyrics.value = finalLyrics;
+
+                    buttonText.textContent = 'Creating Title...';
+                    const titlePrompt = `Based on the following lyrics, suggest one single, creative song title. Output ONLY the title, with no extra text or quotation marks.\n\n---\n${finalLyrics}`;
+                    const mainTitle = await callGemini(titlePrompt);
+                    suggestedTitle.textContent = mainTitle;
+                    
+                    if (!isOutputVisible) {
+                         gsap.set(outputCard, { visibility: 'visible', opacity: 0, y: 30 });
+                         gsap.to(outputCard, { duration: 0.8, opacity: 1, y: 0, ease: "power3.out" });
+                         isOutputVisible = true;
+                    } else {
+                         gsap.fromTo(outputCard, {opacity: 0.5, scale: 0.98}, {duration: 0.5, opacity: 1, scale: 1, ease: 'power2.out'});
+                    }
+
+                } catch (error) {
+                    console.error("An error occurred during generation:", error);
+                    displayError(error.message);
+                } finally {
+                    generateButton.disabled = false;
+                    buttonText.textContent = 'Generate your lyrics';
+                    buttonSpinner.classList.add('hidden');
+                }
+            }
+            
+            function handleCopy(textToCopy, buttonElement) {
+                if (!textToCopy) return;
+
+                const tempTextArea = document.createElement('textarea');
+                tempTextArea.value = textToCopy;
+                document.body.appendChild(tempTextArea);
+                tempTextArea.select();
                 document.execCommand('copy');
-                const originalText = copyButton.textContent;
-                copyButton.textContent = 'Copied!';
-                gsap.to(copyButton, { duration: 0.2, backgroundColor: "#48bb78", ease: "power2.inOut", onComplete: () => {
-                    gsap.to(copyButton, { duration: 0.8, backgroundColor: "#667eea", delay: 1, ease: "power2.out", onComplete: () => {
-                        copyButton.textContent = originalText;
-                    }});
+                document.body.removeChild(tempTextArea);
+                
+                const copyIcon = buttonElement.querySelector('.copy-icon');
+                const checkIcon = buttonElement.querySelector('.check-icon');
+
+                // Animate to checkmark
+                gsap.to(copyIcon, { scale: 0, opacity: 0, duration: 0.2, ease: 'power2.in', onComplete: () => {
+                    copyIcon.classList.add('hidden');
+                    checkIcon.classList.remove('hidden');
+                    gsap.fromTo(checkIcon, {scale: 0, opacity: 0}, {scale: 1, opacity: 1, duration: 0.2, ease: 'power2.out'});
                 }});
-            } catch (err) {
-                console.error('Failed to copy text: ', err);
+
+                // Animate back to copy icon
+                gsap.to(checkIcon, {
+                    scale: 0, 
+                    opacity: 0, 
+                    duration: 0.2, 
+                    ease: 'power2.in', 
+                    delay: 1.5, 
+                    onComplete: () => {
+                        checkIcon.classList.add('hidden');
+                        copyIcon.classList.remove('hidden');
+                        gsap.fromTo(copyIcon, {scale: 0, opacity: 0}, {scale: 1, opacity: 1, duration: 0.2, ease: 'power2.out'});
+                    }
+                });
             }
-        }
 
-        // Event Listeners
-        generateButtonSimple.addEventListener('click', () => handleGenerateLyrics('simple'));
-        generateButtonCustom.addEventListener('click', () => handleGenerateLyrics('custom'));
-        copyButton.addEventListener('click', handleCopyLyrics);
-        goToCustomModeButton.addEventListener('click', showCustomMode);
-        backToSimpleModeButton.addEventListener('click', showSimpleMode);
-
-        // Initial setup for form wrapper height and output section visibility
-        window.addEventListener('load', () => {
-            // Use a small delay to ensure initial render calculations are complete
-            setTimeout(() => {
-                formWrapper.style.height = simpleModeSection.offsetHeight + 'px';
-            }, 100); // 100ms delay to allow DOM to fully render
-
-            if (window.innerWidth >= 768) {
-                outputSection.style.display = 'flex';
-                outputSection.style.opacity = 1;
-            }
+            // --- Event Listeners ---
+            simpleModeBtn.addEventListener('click', () => setMode('simple'));
+            customModeBtn.addEventListener('click', () => setMode('custom'));
+            
+            musicalStyle.addEventListener('change', () => toggleOtherInput(musicalStyle, musicalStyleOther));
+            toneMood.addEventListener('change', () => toggleOtherInput(toneMood, toneMoodOther));
+            songStructure.addEventListener('change', () => toggleOtherInput(songStructure, songStructureOther));
+            lyricalComplexity.addEventListener('change', () => toggleOtherInput(lyricalComplexity, lyricalComplexityOther));
+            rhymeScheme.addEventListener('change', () => toggleOtherInput(rhymeScheme, rhymeSchemeOther));
+            
+            generateButton.addEventListener('click', handleGenerate);
+            copyLyricsBtn.addEventListener('click', () => handleCopy(generatedLyrics.value, copyLyricsBtn));
+            copyTitleBtn.addEventListener('click', () => handleCopy(suggestedTitle.textContent, copyTitleBtn));
         });
-
-        // Recalculate height on resize for responsive layouts
-        window.addEventListener('resize', () => {
-            setTimeout(() => {
-                if (simpleModeSection.style.transform === 'translateX(0%)' || simpleModeSection.style.opacity == 1) {
-                    formWrapper.style.height = simpleModeSection.offsetHeight + 'px';
-                } else {
-                    formWrapper.style.height = customModeSection.offsetHeight + 'px';
-                }
-                // Also handle output section visibility on resize
-                if (window.innerWidth >= 768) {
-                    outputSection.style.display = 'flex';
-                    outputSection.style.opacity = 1;
-                } else if (generatedLyricsTextarea.value.trim() === '') {
-                    outputSection.style.display = 'none';
-                }
-            }, 50); // Small delay to account for browser layout recalculations
-        });
-
     </script>
 </body>
 </html>
