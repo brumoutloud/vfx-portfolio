@@ -19,6 +19,13 @@
             transform: translateY(-8px);
             box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
         }
+        .featured-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .featured-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white antialiased">
@@ -35,49 +42,59 @@
     </header>
 
     <main class="container mx-auto px-6 pb-20">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
-            <a href="http://projectbuddy.netlify.app" target="_blank" class="portfolio-card block bg-gray-800 rounded-lg overflow-hidden shadow-lg">
-                <div class="p-6">
-                    <h2 class="text-2xl font-bold text-white mb-2">Project Buddy</h2>
-                    <p class="text-gray-400 mb-4">My flagship AI-powered project management tool, designed to streamline your workflow.</p>
-                    <span class="inline-block bg-green-600 text-white text-sm font-semibold px-3 py-1 rounded-full">
-                        View Project &rarr;
-                    </span>
-                </div>
-            </a>
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold text-center mb-8 text-white">Featured Project</h2>
+            <div class="max-w-2xl mx-auto">
+                <a href="http://projectbuddy.netlify.app" target="_blank" class="featured-card block bg-gray-800 rounded-lg overflow-hidden shadow-2xl">
+                    <img src="https://i.ibb.co/s9cNk9Py/Heading.png" alt="Project Buddy Social Graph Image" class="w-full h-auto object-cover">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold text-white mb-2">Project Buddy</h3>
+                        <p class="text-gray-400 mb-4">My flagship AI-powered project management tool, designed to streamline your workflow.</p>
+                        <span class="inline-block bg-green-600 text-white text-sm font-semibold px-3 py-1 rounded-full">
+                            View Project &rarr;
+                        </span>
+                    </div>
+                </a>
+            </div>
+        </section>
 
-            <a href="visualizer.html" class="portfolio-card block bg-gray-800 rounded-lg overflow-hidden shadow-lg">
-                <div class="p-6">
-                    <h2 class="text-2xl font-bold text-white mb-2">Audio Visualizer</h2>
-                    <p class="text-gray-400 mb-4">An interactive, beat-driven music visualizer built with JavaScript, GSAP, and Tone.js.</p>
-                    <span class="inline-block bg-pink-600 text-white text-sm font-semibold px-3 py-1 rounded-full">
-                        View Project &rarr;
-                    </span>
-                </div>
-            </a>
+        <section>
+            <h2 class="text-3xl font-bold text-center mb-8 text-gray-400">Other Projects</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
-            <a href="tiktok-calculator.html" class="portfolio-card block bg-gray-800 rounded-lg overflow-hidden shadow-lg">
-                <div class="p-6">
-                    <h2 class="text-2xl font-bold text-white mb-2">TikTok Revenue Calculator</h2>
-                    <p class="text-gray-400 mb-4">Estimate potential earnings from the TikTok Creativity Program, with a detailed guide to monetization.</p>
-                    <span class="inline-block bg-teal-500 text-white text-sm font-semibold px-3 py-1 rounded-full">
-                        Use Tool &rarr;
-                    </span>
-                </div>
-            </a>
+                <a href="visualizer.html" class="portfolio-card block bg-gray-800 rounded-lg overflow-hidden shadow-lg">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold text-white mb-2">Audio Visualizer</h3>
+                        <p class="text-gray-400 mb-4">An interactive, beat-driven music visualizer built with JavaScript, GSAP, and Tone.js.</p>
+                        <span class="inline-block bg-pink-600 text-white text-sm font-semibold px-3 py-1 rounded-full">
+                            View Project &rarr;
+                        </span>
+                    </div>
+                </a>
 
-            <a href="lyricgen.html" class="portfolio-card block bg-gray-800 rounded-lg overflow-hidden shadow-lg">
-                <div class="p-6">
-                    <h2 class="text-2xl font-bold text-white mb-2">LyricGen AI</h2>
-                    <p class="text-gray-400 mb-4">An AI-powered lyric and music prompt generator for artists and producers. Now in public beta.</p>
-                    <span class="inline-block bg-blue-600 text-white text-sm font-semibold px-3 py-1 rounded-full">
-                        View Beta &rarr;
-                    </span>
-                </div>
-            </a>
+                <a href="tiktok-calculator.html" class="portfolio-card block bg-gray-800 rounded-lg overflow-hidden shadow-lg">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold text-white mb-2">TikTok Revenue Calculator</h3>
+                        <p class="text-gray-400 mb-4">Estimate potential earnings from the TikTok Creativity Program, with a detailed guide to monetization.</p>
+                        <span class="inline-block bg-teal-500 text-white text-sm font-semibold px-3 py-1 rounded-full">
+                            Use Tool &rarr;
+                        </span>
+                    </div>
+                </a>
 
-        </div>
+                <a href="lyricgen.html" class="portfolio-card block bg-gray-800 rounded-lg overflow-hidden shadow-lg">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold text-white mb-2">LyricGen AI</h3>
+                        <p class="text-gray-400 mb-4">An AI-powered lyric and music prompt generator for artists and producers. Now in public beta.</p>
+                        <span class="inline-block bg-blue-600 text-white text-sm font-semibold px-3 py-1 rounded-full">
+                            View Beta &rarr;
+                        </span>
+                    </div>
+                </a>
+
+            </div>
+        </section>
     </main>
 
     <footer class="py-10 bg-gray-900 border-t border-gray-800">
